@@ -1,17 +1,20 @@
 
 #include "polynom.h"
+#include "eq_exception.h"
 #include "list.h"
 #include <bits/types/FILE.h>
 #include <fstream>
+#include <cmath>
 #include <istream>
 #include <ostream>
 #include <sstream>
 #include <string>
 
- Monom& Monom::operator+=(const Monom &other)
+Monom& Monom::operator+=(const Monom &other)
 {
   if(degree != other.degree)
-    throw("Degree`s are not equal");
+    throw(EqException(EqException::incorrect_operation,
+                      "Degree`s are not equal"));
   coef += other.coef;
   return *this;
 }
@@ -19,7 +22,8 @@
 Monom& Monom::operator-=(const Monom &other)
 {
   if(degree != other.degree)
-    throw("Degree`s are not equal");
+    throw(EqException(EqException::incorrect_operation,
+                      "Degree`s are not equal"));
   coef += other.coef;
   return *this;
 }
@@ -365,23 +369,24 @@ Polynom operator*(double num, const Polynom& rhs)
   return temp *= num;
 }
 
-void Polynom::WriteToFile(std::string& path) const
+void Polynom::WriteToFile(std::string path) const
 {
   std::ofstream out;
   out.open(path);
   if(!out.is_open())
-    throw("Incorrect path or filesystem error");
+    throw(EqException(EqException::file_system_error,
+                      "Incorrect path or filesystem error"));
   operator<<(out, *this);
   out.close();
 }
 
-void Polynom::ReadFromFile(std::string& path)
+void Polynom::ReadFromFile(std::string path)
 {
   std::ifstream in;
   in.open(path);
   if(!in.is_open())
-    throw("Incorrect path or filesystem error");
-
+    throw(EqException(EqException::file_system_error,
+                      "Incorrect path or filesystem error"));
   TList<Monom> Tpl;
   polynom = Tpl;
 
@@ -399,4 +404,26 @@ void Polynom::ReadFromFile(std::string& path)
     }
   }
   in.close();
+}
+
+double Polynom::CalculateInPoint(double x, double y, double z)
+{
+  if(x == y == z == 0) {
+    return 0;
+  }
+
+  if(polynom.GetSize() == 0) {
+    throw(EqException(EqException::calcluate_empty_expression,
+                      "Polynom is not set"));
+  }
+
+  int a, b, c;
+  double result = 0;
+  for(TList<Monom>::iterator it = polynom.begin(); it != polynom.end(); ++it) {
+    c = (*it).GetDegree() % BASE;
+    b = ((*it).GetDegree() / BASE) % BASE;
+    a = (((*it).GetDegree() / BASE) / BASE) % BASE;
+    result += (*it).GetCoef() * pow(x, a) * pow(y, b) * pow(z, c);
+  }
+  return result;
 }

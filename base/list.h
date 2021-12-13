@@ -1,7 +1,11 @@
 #ifndef _LIST_H
 #define _LIST_H
 
+#include "eq_exception.h"
+
 #include <vector>
+
+
 template <class T>
 struct TNode
 {
@@ -18,43 +22,38 @@ class TListItertor;
 template <class T>
 class TListIterator
 {
-  private:
-    friend class TList<T>;
-    TNode<T>* pptr;
-    TNode<T>* ptr;
+private:
+  friend class TList<T>;
+  TNode<T>* pptr;
+  TNode<T>* ptr;
 
-    TListIterator(TNode<T>* _ptr) : ptr(_ptr), pptr(_ptr)
-      {}
+  TListIterator(TNode<T>* _ptr) : ptr(_ptr), pptr(_ptr)
+  {}
+public:
+  TListIterator(const TListIterator& it) : ptr(it.ptr), pptr(it.pptr)
+  {}
 
+  bool operator==(const TListIterator& it) const
+  {
+    return (ptr == it.ptr);
+  }
 
-  public:
-    TListIterator(const TListIterator& it) : ptr(it.ptr), pptr(it.pptr)
-      {}
+  bool operator!=(const TListIterator& it) const
+  {
+    return (ptr != it.ptr);
+  }
 
-    bool operator==(const TListIterator& it) const
-    {
-      return (ptr == it.ptr);
-    }
+  T& operator*() const
+  {
+    return ptr->key;
+  }
 
-    bool operator!=(const TListIterator& it) const
-    {
-      return (ptr != it.ptr);
-    }
-
-
-    T& operator*() const
-    {
-      return ptr->key;
-    }
-
-
-
-    TListIterator& operator++()
-    {
-      pptr = ptr;
-      ptr = ptr->pNext;
-      return *this;
-    }
+  TListIterator& operator++()
+  {
+    pptr = ptr;
+    ptr = ptr->pNext;
+    return *this;
+  }
 };
 
 template <class T> 
@@ -97,7 +96,7 @@ public:
   TList(T* arr) : size(0), pFirst(nullptr), pLast(nullptr)
   {
     if(arr == nullptr)
-      throw("Wrong length of mass");
+      throw(EqException(EqException::bad_array,"Wrong length of mass"));
     for(int i = 0; i < sizeoff(arr) / sizeoff(arr[0]); i++) {
       AddNode(arr[i]);
     }
@@ -106,7 +105,7 @@ public:
   TList(std::vector<T>& v) : size(0), pFirst(nullptr), pLast(nullptr)
   {
     if(v.size() == 0)
-      throw("Wrong length of mass");
+      throw(EqException(EqException::bad_array,"Wrong length of vector"));
     for(T tmp: v) {
       AddNode(tmp);
     }
@@ -212,11 +211,10 @@ public:
     return pLast;
   }
   
-  
   TNode<T>* GetNode(int index) const
   {
     if((index > size - 1) || (index < 0) )
-      throw("Wrong index");
+      throw(EqException(EqException::out_of_range, "Index incorrect"));
     if(index == size - 1) {
       return pLast;
     }
