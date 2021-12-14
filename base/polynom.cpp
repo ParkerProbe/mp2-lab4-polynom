@@ -72,9 +72,11 @@ std::istream& operator>>(std::istream& is,  Monom& mnm)
   int i = 0;
   std::string tmp;
 
+
+
   // Search coefficient
   while(char c = smon[i]) {
-    if(c == 'x' || c =='y' || c== 'z')
+    if(c == 'x' || c == 'y' || c == 'z')
       break;
     tmp += c;
     i++;
@@ -92,7 +94,7 @@ std::istream& operator>>(std::istream& is,  Monom& mnm)
     if(smon[j] == 'x') {
       for (int k = j + 1; k < smon.size(); k++) {
         if (k < smon.size()) {
-          if (smon[k] == 'y') {
+          if (smon[k] == 'y' || smon[k] == 'z') {
             break;
           }
           tmp += smon[k];
@@ -188,26 +190,10 @@ void Polynom::AddMonom(const Monom& monom)
 
 Polynom::Polynom(std::string polynom_str)
 {
-  std::string tmp;
-  int i = 0;
-  while(char c = polynom_str[i]) {
-    if(c == '+') {
-      std::istringstream istr(tmp);
-      Monom tmon;
-      operator>>(istr,tmon);
-      polynom.AddNode(tmon);
-      tmp.clear();
-    }
-    else {
-      tmp += c;
-    }
-    i++;
-  }
-  std::istringstream istr(tmp);
-  Monom tmon;
-  operator>>(istr, tmon);
-  polynom.AddNode(tmon);
+  std::istringstream is(polynom_str);
+  operator>>(is, *this);
 }
+
 
 std::ostream& operator<<(std::ostream& os,  const Polynom& pl)
 {
@@ -230,28 +216,46 @@ std::ostream& operator<<(std::ostream& os,  const Polynom& pl)
   return os;
 }
 
-std::istream& operator>>(std::istream& is,  Polynom& pl)
+std::istream& operator>>(std::istream& is, Polynom& pl)
 {
-  TList<Monom> Tpl;
-  pl.polynom = Tpl;
+  std::string polynom_str;
+
+  pl.polynom.EraseList();
 
   std::string tmp;
-  while(is >> tmp) {
-    if(tmp != "+") {
+  while (is >> tmp) {
+    polynom_str += tmp;
+  }
+  tmp.clear();
+
+
+  // Delete spaces 
+  polynom_str.erase(std::remove(polynom_str.begin(), polynom_str.end(), ' '), polynom_str.end());
+
+  int i = 0;
+  while (char c = polynom_str[i]) {
+    if (c == '+') {
       std::istringstream istr(tmp);
       Monom tmon;
-      operator>>(istr,tmon);
+      operator>>(istr, tmon);
       pl.polynom.AddNode(tmon);
       tmp.clear();
     }
     else {
-      tmp.clear();
+      tmp += c;
     }
+    i++;
   }
+  std::istringstream istr(tmp);
+  Monom tmon;
+  operator>>(istr, tmon);
+  pl.polynom.AddNode(tmon);
+
+  pl.OptimizePolynom();
   return is;
 }
 
-//Need to Optimize
+
 Polynom Polynom::SortPolynom(const Polynom& pl) const
 {
   std::vector<Monom> vec_tmp;
@@ -268,10 +272,36 @@ Polynom Polynom::SortPolynom(const Polynom& pl) const
   return tpoly;
 }
 
+void Polynom::OptimizePolynom()
+{
+  bool flag = false;
+  TList<Monom>::iterator it3 = polynom.begin();
+  for (TList<Monom>::iterator it1 = polynom.begin(); it1 != polynom.end(); ++it1) {
+    
+    if (((*it1).GetCoef() < 0.002) && ((*it1).GetCoef() > -0.002)) {
+      flag = true;
+      it3 = it1;
+      continue;
+    }
+
+    if (flag) {
+      polynom.Erase(it3);
+      flag = false;
+    }
+    TList<Monom>::iterator it2 = it1;
+    for (++it2; it2 != polynom.end(); ++it2) {
+      if ((*it2).GetDegree() == (*it1).GetDegree()) {
+        (*it2) += (*it1);
+        it3 = it1;
+        flag = true;
+        break;
+      }
+    }
+  }
+}
 
 Polynom& Polynom::operator+=(const Polynom& other)
 {
-
   polynom = SortPolynom(*this).polynom;
   Polynom oth = SortPolynom(other);
 
@@ -410,31 +440,12 @@ void Polynom::ReadFromFile(std::string path)
   if(!in.is_open())
     throw(EqException(EqException::file_system_error,
                       "Incorrect path or filesystem error"));
-  TList<Monom> Tpl;
-  polynom = Tpl;
-
-  std::string tmp;
-  while(in >> tmp) {
-    if(tmp != "+") {
-      std::istringstream istr(tmp);
-      Monom tmon;
-      operator>>(istr,tmon);
-      polynom.AddNode(tmon);
-      tmp.clear();
-    }
-    else {
-      tmp.clear();
-    }
-  }
+  operator>>(in, *this);
   in.close();
 }
 
 double Polynom::CalculateInPoint(double x, double y, double z)
 {
-  if(x == y == z == 0) {
-    return 0;
-  }
-
   if(polynom.GetSize() == 0) {
     throw(EqException(EqException::calcluate_empty_expression,
                       "Polynom is not set"));
@@ -444,8 +455,8 @@ double Polynom::CalculateInPoint(double x, double y, double z)
   double result = 0;
   for(TList<Monom>::iterator it = polynom.begin(); it != polynom.end(); ++it) {
     c = (*it).GetDegree() % BASE;
-    b = ((*it).GetDegree() / BASE) % BASE;
-    a = (((*it).GetDegree() / BASE) / BASE) % BASE;
+    b = (((*it).GetDegree() - c)  / BASE) % BASE;
+    a = ((((*it).GetDegree() - b - c) / BASE) / BASE);
     result += (*it).GetCoef() * pow(x, a) * pow(y, b) * pow(z, c);
   }
   return result;

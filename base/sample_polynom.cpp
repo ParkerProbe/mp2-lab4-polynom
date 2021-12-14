@@ -11,38 +11,36 @@ int main()
                "Polynomials From Several Variables";
   std::cout << std::endl;
 
-
 c:
   try {
     std::string tmp1, tmp2;
-    //std::cout << "Enter first polynom:" << std::endl;
-    //std::getline(std::cin, tmp1);
-    //std::cout << "Enter second polynom:" << std::endl;
-    //std::getline(std::cin, tmp2);
-    //Polynom p1(tmp1);
-    //Polynom p2(tmp2);
-    Polynom p1("2x65y1z0+1+xyz");
-    Polynom p2("xyz");
+    std::cout << "Enter first polynom:" << std::endl;
+    std::getline(std::cin, tmp1);
+    std::cout << "Enter second polynom:" << std::endl;
+    std::getline(std::cin, tmp2);
+    Polynom p1(tmp1);
+    Polynom p2(tmp2);
+    
+    
+    std::cout << "Result of second polynom in point 2, 3, 4:" << std::endl; 
+    std::cout << p2.CalculateInPoint(2.0, 3.0, 4.0) << std::endl;
 
-    p2.CalculateInPoint(2.0, 3.0, 4.0);
-    p1 += p1 + p2;
-    std::cout << p1 << std::endl;
-    std::cout << p2 << std::endl;
-    std::string path;
+    std::cout << "Result of operation polynom1 + polynom 2:" << p1 + p2 << std::endl;
 
     // Write to file
+    std::string path;
 f:
-    /*try {
+    try {
       std::cout << "Enter path for write to" << std::endl;
       std::getline(std::cin, path);
       p1.WriteToFile(path);
-      std::cout << p1 << std::endl;
+      std::cout << "You write:" << p1 << std::endl;
     }
-    catch(EqException& e) {
+    catch (EqException& e) {
       std::cout << "Warning:" << e.GetComment() << std::endl;
       std::cout << "Please enter another path" << std::endl;
       goto f;
-    }*/
+    }
 
     std::vector<Polynom*> mass;
 
@@ -59,23 +57,17 @@ r:
 
    std::string buf;
    int i = 0;
-   while (in >> buf) {
+   while (in) {
+     std::getline(in, buf);
      Polynom* tmp = new Polynom(buf);
      mass.push_back(tmp);
    }
-
 
    std::cout << "Readen polynoms are transformed" << std::endl;
    for (Polynom* tmp : mass) {
      std::cout <<  *tmp << std::endl;
    }
-
   }
-
-
-
-
-
   catch(EqException& e) {
     if(e.error == EqException::calcluate_empty_expression) {
       std::cout << "Warning:" << e.GetComment() << std::endl;
@@ -97,6 +89,5 @@ r:
     std::cout << "Error:" << "Dynamic Memory allocation error" << std::endl;
     return 1;
   }
-
   return 0;
 }

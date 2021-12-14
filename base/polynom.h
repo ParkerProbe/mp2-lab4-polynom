@@ -37,8 +37,6 @@ public:
 
   bool operator<(const Monom& other) const;
 
-  inline std::string GetMonomStr() const;
-
   inline int GetDegree() const
   {
     return degree;
@@ -75,6 +73,7 @@ public:
   void AddMonom(const Monom& monom);
   Polynom SortPolynom(const Polynom& pl) const;
   double CalculateInPoint(double x, double y, double z);
+  void OptimizePolynom();
 
   Polynom& operator=(const Polynom& other) = default;
   Polynom& operator+=(const Polynom& other);
