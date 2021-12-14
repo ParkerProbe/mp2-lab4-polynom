@@ -34,7 +34,6 @@ public:
   Monom& operator*=(double num);
   Monom& operator-=(const Monom& other);
   Monom& operator*=(const Monom& other);
-  Monom& operator/=(const Monom& other);
 
   bool operator<(const Monom& other) const;
 
@@ -80,8 +79,7 @@ public:
   Polynom& operator=(const Polynom& other) = default;
   Polynom& operator+=(const Polynom& other);
   Polynom& operator*=(const Polynom& other);
-  Polynom& operator*=(const double num);
-  Polynom& operator/=(const Polynom& other);
+  Polynom& operator*=(double num);
   Polynom& operator-=(Polynom& other);
 
   void WriteToFile(std::string path) const;
@@ -90,5 +88,7 @@ public:
 
 Polynom operator+(const Polynom& lhs, const Polynom& rhs);
 Polynom operator*(const Polynom& lhs, const Polynom& rhs);
+Polynom operator*(const Polynom& lhs, double num);
+Polynom operator*(double, const Polynom& rhs);
 Polynom operator-(const Polynom& lhs, const Polynom& rhs);
 #endif

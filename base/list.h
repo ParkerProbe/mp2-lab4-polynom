@@ -93,6 +93,28 @@ public:
     return iter;
   }
 
+  void Erase(iterator iter)
+  {
+    TNode<T>* tmp = pFirst;
+    TNode<T>* prev;
+    int pos = 0;
+    while (tmp != iter.ptr) {
+      prev = tmp;
+      tmp = tmp -> pNext;
+      pos++;
+     }
+    if (pos == 0) {
+      pFirst = pFirst->pNext;
+      delete tmp;
+      size--;
+    }
+    else {
+      prev->pNext = tmp->pNext;
+      delete tmp;
+      size--;
+    }
+  }
+
   TList(T* arr) : size(0), pFirst(nullptr), pLast(nullptr)
   {
     if(arr == nullptr)
@@ -109,6 +131,50 @@ public:
     for(T tmp: v) {
       AddNode(tmp);
     }
+  }
+
+  T& operator[](int index)
+  {
+    if ((index > size - 1) || (index < 0)) {
+      throw(EqException(EqException::out_of_range, "Incorrect index"));
+    }
+    int n = 0;
+    TNode<T>* pCurrent = pFirst;
+
+    while(pCurrent != nullptr) {
+      pCurrent = pCurrent->pNext;
+      if (index == n) {
+        return pCurrent->key;
+      }
+      n++;
+    }
+    throw(EqException(EqException::out_of_range, "Incorrect index"));
+  }
+
+  inline bool operator==(const TList& other)
+  {
+    if(size != other.size) {
+      return false;
+    }
+
+    if(this == &other) {
+      return true;
+    }
+
+    iterator it1 = this->begin();
+    iterator it2 = other.begin();
+
+    for(;it1 != this->end(); ++it1, ++it2) {
+      if(it1.ptr->key != it2.ptr->key) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  inline bool operator!=(const TList& other)
+  {
+    return !(*this == other);
   }
 
   TList(TList && list) noexcept
@@ -172,14 +238,19 @@ public:
     pLast = pCurrent;
   }
 
-  ~TList()
+  void EraseList()
   {
     TNode<T>* pCurrent = pFirst;
     while(pCurrent != nullptr) {
       pCurrent = pCurrent->pNext;
-      delete [] pFirst;
+      delete  pFirst;
       pFirst = pCurrent;
     }
+  }
+
+  ~TList()
+  {
+    EraseList();
   }
 
   TList& operator=(const TList& other)
@@ -234,6 +305,11 @@ public:
   inline int GetSize() const
   {
     return size;
+  }
+
+  inline bool IsEmpty() const
+  {
+    return (size == 0);
   }
 };
 
