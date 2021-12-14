@@ -82,9 +82,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\base\polynom.cpp" />
     <ClCompile Include="test_polynom.cpp" />
     <ClCompile Include="test_main.cpp" />
     <ClCompile Include="test_list.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\base\eq_exception.h" />
+    <ClInclude Include="..\base\list.h" />
+    <ClInclude Include="..\base\polynom.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

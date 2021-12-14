@@ -63,16 +63,16 @@ TEST(Polynom, can_add_pol)
   ASSERT_NO_THROW(p1 + p2);
 }
 
-TEST(Polynom, can_sub_pol)
-{
-  std::string pol1 = "-14.88x2y5";
-  std::string pol2 = "-14.88x2y5+2";
-
-  Polynom p1(pol1);
-  Polynom p2(pol2);
-
-  ASSERT_NO_THROW(p1 - p2);
-}
+//TEST(Polynom, can_sub_pol)
+//{
+//  std::string pol1 = "-14.88x2y5";
+//  std::string pol2 = "-14.88x2y5+2";
+//
+//  Polynom p1(pol1);
+//  Polynom p2(pol2);
+//
+//  ASSERT_NO_THROW(p1 - p2);
+//}
 
 TEST(polynomial, can_myltiply_pol)
 {

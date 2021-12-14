@@ -2,7 +2,6 @@
 #include "polynom.h"
 #include "eq_exception.h"
 #include "list.h"
-#include <bits/types/FILE.h>
 #include <fstream>
 #include <cmath>
 #include <istream>
@@ -24,7 +23,7 @@ Monom& Monom::operator-=(const Monom &other)
   if(degree != other.degree)
     throw(EqException(EqException::incorrect_operation,
                       "Degree`s are not equal"));
-  coef += other.coef;
+  coef -= other.coef;
   return *this;
 }
 
@@ -66,49 +65,76 @@ std::ostream& operator<<(std::ostream& os, const Monom& mnm)
 
 std::istream& operator>>(std::istream& is,  Monom& mnm)
 {
-  std::string deg;
-  is >> deg;
+  std::string smon;
+  is >> smon;
   int i = 0;
   std::string tmp;
-  while(char c = deg[i]) {
+
+  // Search coefficient
+  while(char c = smon[i]) {
     if(c == 'x' || c =='y' || c== 'z')
       break;
     tmp += c;
     i++;
   }
-  mnm.coef = std::stod(tmp);
+  if(tmp.size() > 0)
+    mnm.coef = std::stod(tmp);
+  else {
+    mnm.coef = 1.0;
+  }
 
-  bool flag = false;
-  for(int j = i; j < deg.size(); j++) {
-    if(deg[j] == 'x') {
-      flag = true;
-    }
-    else if(deg[j] == 'y') {
-      if(flag) {
+  // Search deg`s
+  tmp.clear();
+
+  for(int j = i; j < smon.size(); j++) {
+    if(smon[j] == 'x') {
+      for (int k = j + 1; k < smon.size(); k++) {
+        if (k < smon.size()) {
+          if (smon[k] != 'y') {
+            break;
+          }
+          tmp += smon[k];
+        }
+      }
+      if (!tmp.size()) {
+        mnm.degree += 1;
+      }
+      else {
         mnm.degree += std::stoi(tmp) * BASE * BASE;
         tmp.clear();
       }
-      else {
-        flag = true;
-      }
     }
-    else if(deg[j] == 'z') {
-      if(flag) {
+
+    else if(smon[j] == 'y') {
+      for (int k = j + 1; k < smon.size(); k++) {
+        if (k < smon.size()) {
+          if (smon[k] != 'y') {
+            break;
+          }
+          tmp += smon[k];
+        }
+      }
+      if (!tmp.size()) {
+        mnm.degree += 1;
+      }
+      else {
         mnm.degree += std::stoi(tmp) * BASE;
         tmp.clear();
       }
+    }
+
+    else if (smon[j] == 'z') {
+      for (int k = j + 1; k < smon.size(); k++) {
+        tmp += smon[k];
+      }
+      if (!tmp.size()) {
+        mnm.degree += 1;
+      }
       else {
-        flag = true;
+        mnm.degree += std::stoi(tmp);
       }
     }
-    else {
-      tmp += deg[j];
-    }
   }
-  if(flag) {
-    mnm.degree += std::stoi(tmp);
-  }
-
   return is;
 }
 
@@ -173,6 +199,7 @@ Polynom::Polynom(std::string polynom_str)
     else {
       tmp += c;
     }
+    i++;
   }
   std::istringstream istr(tmp);
   Monom tmon;
@@ -233,7 +260,7 @@ Polynom Polynom::SortPolynom(const Polynom& pl) const
   }
   std::sort(vec_tmp.begin(), vec_tmp.end());
   Polynom tpoly;
-  for (Monom tmp : vec_tmp) {
+  for (Monom& tmp : vec_tmp) {
     tpoly.AddMonom(tmp);
   }
   return tpoly;

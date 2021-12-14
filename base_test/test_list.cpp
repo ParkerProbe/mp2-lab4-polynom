@@ -1,6 +1,5 @@
 #include "gtest.h"
-#include "../base/polynom.h"
-
+#include "polynom.h"
 
 // LIST TESTS
 
@@ -104,8 +103,8 @@ TEST(TList, method_del_delete_all_values_of_list)
 TEST(TList, can_erace_elem_by_iterator)
 {
   TList<int> List;
-  TList<int>::iterator i = List.begin();
   List.AddNode(10);
+  TList<int>::iterator i = List.begin();
   ASSERT_NO_THROW(List.Erase(i));
 }
 
@@ -143,8 +142,8 @@ TEST(Iterator, can_assign_iterator)
 TEST(Iterator, can_dereference_iterator)
 {
   TList<int> List;
-  TList<int>::iterator i = List.begin();
   List.AddNode(1);
+  TList<int>::iterator i = List.begin();
   EXPECT_EQ(1, *(i));
 }
 

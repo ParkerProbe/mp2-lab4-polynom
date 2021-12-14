@@ -9,8 +9,8 @@
 template <class T>
 struct TNode
 {
-  T key;
-  TNode *pNext;
+  T key = T();
+  TNode* pNext = nullptr;
 };
 
 template <class T>
@@ -139,13 +139,13 @@ public:
       throw(EqException(EqException::out_of_range, "Incorrect index"));
     }
     int n = 0;
-    TNode<T>* pCurrent = pFirst;
 
+    TNode<T>* pCurrent = pFirst;
     while(pCurrent != nullptr) {
-      pCurrent = pCurrent->pNext;
       if (index == n) {
         return pCurrent->key;
       }
+      pCurrent = pCurrent->pNext;
       n++;
     }
     throw(EqException(EqException::out_of_range, "Incorrect index"));
@@ -246,6 +246,7 @@ public:
       delete  pFirst;
       pFirst = pCurrent;
     }
+    size = 0;
   }
 
   ~TList()

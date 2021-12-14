@@ -10,6 +10,15 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="polynom.cpp" />
+    <ClCompile Include="sample_polynom.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="eq_exception.h" />
+    <ClInclude Include="list.h" />
+    <ClInclude Include="polynom.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4854D7B0-72B7-4276-BE33-BFADBC979165}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
