@@ -43,23 +43,25 @@ Monom& Monom::operator*=(double num)
 std::ostream& operator<<(std::ostream& os, const Monom& mnm)
 {
   int c = mnm.degree % BASE;
-  int b = (mnm.degree / BASE) % BASE;
-  int a = ((mnm.degree / BASE) / BASE) % BASE;
+  int b = ((mnm.degree - c) / BASE) % BASE;
+  int a = (( mnm.degree - b - c) / BASE / BASE);
   std::string out;
 
-  if(a == b == c == 0) {
-    os << "0";
+  if(a + b + c  ==  0) {
+    os << std::to_string(mnm.coef);
     return os;
   }
+
+
   out += std::to_string(mnm.coef);
+  
   if(a != 0)
      out += "x" + std::to_string(a);
   if(b != 0)
-     out += "x" + std::to_string(a);
+     out += "y" + std::to_string(b);
   if(c != 0)
-     out += "x" + std::to_string(a);
+     out += "z" + std::to_string(c);
   os << out;
-  os << "\n";
   return os;
 }
 
@@ -90,14 +92,14 @@ std::istream& operator>>(std::istream& is,  Monom& mnm)
     if(smon[j] == 'x') {
       for (int k = j + 1; k < smon.size(); k++) {
         if (k < smon.size()) {
-          if (smon[k] != 'y') {
+          if (smon[k] == 'y') {
             break;
           }
           tmp += smon[k];
         }
       }
       if (!tmp.size()) {
-        mnm.degree += 1;
+        mnm.degree += 1 * BASE * BASE;
       }
       else {
         mnm.degree += std::stoi(tmp) * BASE * BASE;
@@ -108,14 +110,14 @@ std::istream& operator>>(std::istream& is,  Monom& mnm)
     else if(smon[j] == 'y') {
       for (int k = j + 1; k < smon.size(); k++) {
         if (k < smon.size()) {
-          if (smon[k] != 'y') {
+          if (smon[k] == 'z') {
             break;
           }
           tmp += smon[k];
         }
       }
       if (!tmp.size()) {
-        mnm.degree += 1;
+        mnm.degree += 1 * BASE;
       }
       else {
         mnm.degree += std::stoi(tmp) * BASE;

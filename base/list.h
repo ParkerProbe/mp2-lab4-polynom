@@ -51,6 +51,8 @@ public:
   TListIterator& operator++()
   {
     pptr = ptr;
+    if (ptr == nullptr)
+      return *this;
     ptr = ptr->pNext;
     return *this;
   }
