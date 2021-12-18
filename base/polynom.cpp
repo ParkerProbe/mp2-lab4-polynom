@@ -186,7 +186,7 @@ Monom operator/(const Monom &lhs, const Monom &rhs)
 
 bool Monom::operator<(const Monom& other) const
 {
-  return degree < other.degree;
+  return degree > other.degree;
 }
 
 void Polynom::AddMonom(const Monom& monom)
