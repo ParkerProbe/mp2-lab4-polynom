@@ -52,44 +52,70 @@ TEST(Polynom, can_assign_polinoms)
   ASSERT_NO_THROW(p2 = p1);
 }
 
-TEST(Polynom, can_add_pol)
+TEST(Polynom, can_add_pol_1)
+{
+  std::string pol1 = "x2-y2-z2";
+  std::string pol2 = "3x2+y2+z2";
+
+  Polynom p1(pol1);
+  Polynom p2(pol2);
+  Polynom p3 = p2 + p1;
+  EXPECT_EQ(p3, Polynom("4x2"));;
+}
+
+TEST(Polynom, can_add_pol_2)
+{
+  std::string pol1 = "-z2+87x9+0x1-9y2+9y2";
+  std::string pol2 = "+z2";
+
+  Polynom p1(pol1);
+  Polynom p2(pol2);
+  Polynom p3 = p2 + p1;
+  EXPECT_EQ(p3, Polynom("87x9"));;
+}
+
+TEST(Polynom, can_sub_pol)
 {
   std::string pol1 = "-14.88x2y5";
   std::string pol2 = "-14.88x2y5+2";
 
   Polynom p1(pol1);
   Polynom p2(pol2);
+  Polynom p3 = p1 - p2;
 
-  ASSERT_NO_THROW(p1 + p2);
+
+  EXPECT_EQ(Polynom("-2"), p3);
 }
-
-//TEST(Polynom, can_sub_pol)
-//{
-//  std::string pol1 = "-14.88x2y5";
-//  std::string pol2 = "-14.88x2y5+2";
-//
-//  Polynom p1(pol1);
-//  Polynom p2(pol2);
-//
-//  ASSERT_NO_THROW(p1 - p2);
-//}
 
 TEST(polynomial, can_myltiply_pol)
 {
-  std::string pol1 = "-14.88x2y5";
-  std::string pol2 = "-14.88x2y5+2";
+  std::string pol1 = "x2-y2";
+  std::string pol2 = "x2";
 
   Polynom p1(pol1);
   Polynom p2(pol2);
+  Polynom p3 = p1 * p2;
 
-  ASSERT_NO_THROW(p1 * p2);
+  EXPECT_EQ(Polynom("x4-x2y2"), p3);
+}
+
+TEST(polynomial, can_myltiply_pol_2)
+{
+  std::string pol1 = "x2+y2";
+  std::string pol2 = "x2-y2";
+
+  Polynom p1(pol1);
+  Polynom p2(pol2);
+  Polynom p3 = p1 * p2;
+
+  EXPECT_EQ(Polynom("x4-y4"), p3);
 }
 
 TEST(polynomial, can_multiply_pol_on_const)
 {
-  std::string pol1 = "-14.88x2y5";
+  std::string pol1 = "2x2y5";
 
   Polynom p1(pol1);
 
-  ASSERT_NO_THROW(p1 * 3);
+  EXPECT_EQ(Polynom("6x2y5"), p1 * 3);
 }

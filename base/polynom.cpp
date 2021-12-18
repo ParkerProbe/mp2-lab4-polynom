@@ -52,7 +52,6 @@ std::ostream& operator<<(std::ostream& os, const Monom& mnm)
     return os;
   }
 
-
   out += std::to_string(mnm.coef);
   
   if(a != 0)
@@ -72,8 +71,6 @@ std::istream& operator>>(std::istream& is,  Monom& mnm)
   int i = 0;
   std::string tmp;
 
-
-
   // Search coefficient
   while(char c = smon[i]) {
     if(c == 'x' || c == 'y' || c == 'z')
@@ -81,14 +78,23 @@ std::istream& operator>>(std::istream& is,  Monom& mnm)
     tmp += c;
     i++;
   }
-  if(tmp.size() > 0)
+  
+  if (tmp ==  "-") {
+    mnm.coef = -1.0;
+  }
+  else if (tmp.size() > 0) {
     mnm.coef = std::stod(tmp);
+  }
   else {
     mnm.coef = 1.0;
   }
 
   // Search deg`s
   tmp.clear();
+
+
+  if (smon.size() - i == 0)
+    mnm.degree = 0;
 
   for(int j = i; j < smon.size(); j++) {
     if(smon[j] == 'x') {
@@ -207,10 +213,12 @@ std::ostream& operator<<(std::ostream& os,  const Polynom& pl)
   for(TList<Monom>::iterator it = pl.polynom.begin();
       it != pl.polynom.end(); ++it)
   {
+    if (it != pl.polynom.begin()) {
+      if ((*it).GetCoef() > 0) {
+        std::cout << "+";
+      }
+    }
     os << *it;
-    c--;
-    if(c)
-      os << "+";
   }
 
   return os;
@@ -233,18 +241,46 @@ std::istream& operator>>(std::istream& is, Polynom& pl)
   polynom_str.erase(std::remove(polynom_str.begin(), polynom_str.end(), ' '), polynom_str.end());
 
   int i = 0;
+  bool mflag = false;
   while (char c = polynom_str[i]) {
     if (c == '+') {
+      if (i != 0) {
+        if (mflag) {
+          mflag = false;
+          tmp.insert(0, std::string("-"));
+        }
+        std::istringstream istr(tmp);
+        Monom tmon;
+        operator>>(istr, tmon);
+        pl.polynom.AddNode(tmon);
+        tmp.clear();
+      }
+    }
+    else if (c == '-') {
+      if (i == 0) {
+        mflag = true;
+        i++;
+        continue;
+      }
+
+      if (mflag) {
+        tmp.insert(0, std::string("-"));
+      }
+
       std::istringstream istr(tmp);
       Monom tmon;
       operator>>(istr, tmon);
       pl.polynom.AddNode(tmon);
       tmp.clear();
+      mflag = true;
     }
     else {
       tmp += c;
     }
     i++;
+  }
+  if (mflag) {
+    tmp.insert(0, std::string("-"));
   }
   std::istringstream istr(tmp);
   Monom tmon;
@@ -277,93 +313,64 @@ void Polynom::OptimizePolynom()
   bool flag = false;
   TList<Monom>::iterator it3 = polynom.begin();
   for (TList<Monom>::iterator it1 = polynom.begin(); it1 != polynom.end(); ++it1) {
-    
+
+    if (flag) {
+      polynom.Erase(it3);
+      flag = false;
+    }
+
     if (((*it1).GetCoef() < 0.002) && ((*it1).GetCoef() > -0.002)) {
       flag = true;
       it3 = it1;
       continue;
     }
 
-    if (flag) {
-      polynom.Erase(it3);
-      flag = false;
-    }
     TList<Monom>::iterator it2 = it1;
     for (++it2; it2 != polynom.end(); ++it2) {
       if ((*it2).GetDegree() == (*it1).GetDegree()) {
         (*it2) += (*it1);
+        if ((*it1).GetCoef() == -(*it2).GetCoef()) {
+          polynom.Erase(it2);
+        }
         it3 = it1;
         flag = true;
         break;
       }
     }
   }
+
+  if (flag) {
+    polynom.Erase(it3);
+    flag = false;
+  }
+
+  if (polynom.GetSize() == 0)
+    polynom.AddNode({ 0,0 });
 }
 
 Polynom& Polynom::operator+=(const Polynom& other)
 {
-  polynom = SortPolynom(*this).polynom;
-  Polynom oth = SortPolynom(other);
-
   TList<Monom>::iterator iter_lhs = polynom.begin();
-  TList<Monom>::iterator iter_rhs = oth.polynom.begin();
-  while ((iter_lhs != polynom.end()) && (iter_rhs != oth.polynom.end())) {
-    if ((*iter_lhs).GetDegree() > (*iter_rhs).GetDegree()) {
-      ++iter_rhs;
-      continue;
-    }
-    if (((*iter_lhs).GetDegree() == (*iter_rhs).GetDegree())) {
-      if (((*iter_lhs).GetCoef() + (*iter_rhs).GetCoef()) != 0) {
-        *iter_lhs += *iter_rhs;
-        ++iter_rhs;
-        ++iter_lhs;
-        continue;
-      }
-    }
-    if ((*iter_lhs).GetDegree() < (*iter_rhs).GetDegree()) {
-      iter_lhs = polynom.Insert(iter_lhs, *iter_rhs);
-      ++iter_rhs;
-      ++iter_lhs;
-    }
-  }
-  while (iter_rhs != oth.polynom.end()) {
+  TList<Monom>::iterator iter_rhs = other.polynom.begin();
+  while (iter_rhs != other.polynom.end()) {
     polynom.AddNode(*iter_rhs);
     ++iter_rhs;
   }
+  polynom = SortPolynom(*this).polynom;
+  this->OptimizePolynom();
   return *this;
 }
 
 Polynom& Polynom::operator-=(Polynom& other)
 {
-  polynom = SortPolynom(*this).polynom;
-  Polynom oth = SortPolynom(other);
-
   TList<Monom>::iterator iter_lhs = polynom.begin();
-  TList<Monom>::iterator iter_rhs = oth.polynom.begin();
-
-  while ((iter_lhs != polynom.end()) && (iter_rhs != oth.polynom.end())) {
-    if ((*iter_lhs).GetDegree() > (*iter_rhs).GetDegree()) {
-      ++iter_rhs;
-      continue;
-    }
-    if (((*iter_lhs).GetDegree() == (*iter_rhs).GetDegree())) {
-      if (((*iter_lhs).GetCoef() + (*iter_rhs).GetCoef()) != 0) {
-        *iter_lhs += *iter_rhs;
-        ++iter_rhs;
-        ++iter_lhs;
-        continue;
-      }
-    }
-    if ((*iter_lhs).GetDegree() < (*iter_rhs).GetDegree()) {
-      iter_lhs = polynom.Insert(iter_lhs, (*iter_rhs)*(-1));
-      ++iter_rhs;
-      ++iter_lhs;
-    }
-  }
-  while (iter_rhs != oth.polynom.end()) {
-    polynom.AddNode(*iter_rhs *(-1));
+  TList<Monom>::iterator iter_rhs = other.polynom.begin();
+  while (iter_rhs != other.polynom.end()) {
+    polynom.AddNode((* iter_rhs)*(-1));
     ++iter_rhs;
   }
+  polynom = SortPolynom(*this).polynom;
+  this->OptimizePolynom();
   return *this;
 }
 
@@ -389,7 +396,25 @@ Polynom& Polynom::operator*=(const Polynom& other)
     ++iter_rhs;
   }
   std::swap(*this, out);
+  this->OptimizePolynom();
   return *this;
+}
+
+bool operator==(const Polynom& rhs, const Polynom& lhs)
+{
+  if (rhs.polynom.GetSize() != lhs.polynom.GetSize())
+    return false;
+  TList<Monom>::iterator iter_lhs = rhs.polynom.begin();
+  TList<Monom>::iterator iter_rhs = lhs.polynom.begin();
+  for (; iter_lhs != lhs.polynom.end() || iter_rhs != rhs.polynom.end(); ++iter_lhs, ++iter_rhs) {
+    if (((*iter_lhs).GetDegree()) != ((*iter_rhs).GetDegree())) {
+      return false;
+    }
+    if ((*iter_lhs).GetCoef() != (*iter_rhs).GetCoef()) {
+      return false;
+    }
+  }
+  return true;
 }
 
 Polynom operator+(const Polynom& lhs, const Polynom& rhs)

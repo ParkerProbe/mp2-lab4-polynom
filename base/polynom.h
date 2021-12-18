@@ -28,7 +28,6 @@ public:
   friend std::ostream& operator<<(std::ostream& os,  const Monom& mnm);
   friend std::istream& operator>>(std::istream& is,  Monom& mnm);
 
-
   Monom& operator=(const Monom& other) = default;
   Monom& operator+=(const Monom& other);
   Monom& operator*=(double num);
@@ -69,12 +68,15 @@ public:
 
   friend std::ostream& operator<<(std::ostream& os,  const Polynom& pl);
   friend std::istream& operator>>(std::istream& is,  Polynom& pl);
+  friend bool operator==(const Polynom& rhs, const Polynom& lhs);
+
 
   void AddMonom(const Monom& monom);
   Polynom SortPolynom(const Polynom& pl) const;
   double CalculateInPoint(double x, double y, double z);
   void OptimizePolynom();
 
+  
   Polynom& operator=(const Polynom& other) = default;
   Polynom& operator+=(const Polynom& other);
   Polynom& operator*=(const Polynom& other);
@@ -85,9 +87,10 @@ public:
   void ReadFromFile(std::string path);
 };
 
+bool operator==(const Polynom &rhs,const Polynom& lhs);
 Polynom operator+(const Polynom& lhs, const Polynom& rhs);
 Polynom operator*(const Polynom& lhs, const Polynom& rhs);
 Polynom operator*(const Polynom& lhs, double num);
 Polynom operator*(double, const Polynom& rhs);
-Polynom operator-(const Polynom& lhs, const Polynom& rhs);
+Polynom operator-(Polynom& lhs, Polynom& rhs);
 #endif

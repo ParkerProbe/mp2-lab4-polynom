@@ -21,18 +21,34 @@ c:
     Polynom p1(tmp1);
     Polynom p2(tmp2);
     
-    
-    std::cout << "Result of second polynom in point 2, 3, 4:" << std::endl; 
-    std::cout << p2.CalculateInPoint(2.0, 3.0, 4.0) << std::endl;
+    double x, y, z;
+    std::cout << "Enter points where you need to calculate value (if your polynom not contain some of points, set it 0):" << std::endl;
 
-    std::cout << "Result of operation polynom1 + polynom 2:" << p1 + p2 << std::endl;
+    std::cout << "x:";
+    std::cin >> x;
+
+    std::cout << "y:";
+    std::cin >> y;
+
+    std::cout << "z:";
+    std::cin >> z;
+    std::cout << std::endl;
+
+    std::cout << "Result of first polynom in point x, y, z:" << std::endl; 
+    std::cout << p1.CalculateInPoint(x, y, z) << std::endl;
+    std::cout << "Result of second polynom in point x, y, z:" << std::endl;
+    std::cout << p2.CalculateInPoint(x, y, z) << std::endl;
+
+    std::cout << "Result of operation polynom1 + polynom 2: " << p1+p2 << std::endl;
+    std::cout << "Result of operation polynom1 - polynom 2: " << p1-p2 << std::endl;
+    std::cout << "Result of operation polynom1 * polynom 2: " << p1*p2 << std::endl;
 
     // Write to file
     std::string path;
 f:
     try {
       std::cout << "Enter path for write to" << std::endl;
-      std::getline(std::cin, path);
+      std::cin >> path;
       p1.WriteToFile(path);
       std::cout << "You write:" << p1 << std::endl;
     }
